@@ -9,12 +9,11 @@ import javax.inject.Inject
 class PostRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getPosts(token: String): Response<List<Post>> {
-        return apiService.getPosts("Bearer $token")
+    suspend fun getPosts(): Response<List<Post>> {
+        return apiService.getPosts()
     }
 
-    suspend fun createPost(content: String): Response<Post> {
-        val post = Post(0, userId = 1, content = content, timestamp = "", likes = 0, comments = 0)
-        return RetrofitClient.instance.createPost(post)
+    suspend fun createPost(post: Post): Response<Post> {
+        return apiService.createPost(post = post)
     }
 }

@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.repository.PostRepository
 import javax.inject.Inject
 
@@ -14,22 +15,26 @@ class CreatePostViewModel @Inject constructor(
     private val postRepository: PostRepository
 ) : ViewModel() {
 
-    private val _postState = MutableStateFlow(PostState.IDLE)
-    val postState: StateFlow<PostState> = _postState
+    private val _createPostState = MutableStateFlow<CreatePostState>(CreatePostState.Idle)
+    val createPostState: StateFlow<CreatePostState> = _createPostState
 
     fun createPost(content: String) {
         viewModelScope.launch {
-            _postState.value = PostState.LOADING
-            val response = postRepository.createPost(content)
+            _createPostState.value = CreatePostState.Loading
+            val post = Post(content = content)
+            val response = postRepository.createPost(post)
             if (response.isSuccessful) {
-                _postState.value = PostState.SUCCESS
+                _createPostState.value = CreatePostState.Success
             } else {
-                _postState.value = PostState.ERROR
+                _createPostState.value = CreatePostState.Error
             }
         }
     }
 
-    enum class PostState {
-        IDLE, LOADING, SUCCESS, ERROR
+    sealed class CreatePostState {
+        object Idle : CreatePostState()
+        object Loading : CreatePostState()
+        object Success : CreatePostState()
+        object Error : CreatePostState()
     }
 }

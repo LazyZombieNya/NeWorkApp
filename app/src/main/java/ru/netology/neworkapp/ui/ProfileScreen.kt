@@ -26,9 +26,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Username: ${user?.username ?: "Loading..."}")
+                Text(text = "Login: ${user?.login ?: "Loading..."}")
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Email: ${user?.email ?: "Loading..."}")
+                Text(text = "Username: ${user?.name ?: "Loading..."}")
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { /* Реализация редактирования профиля */ }) {
                     Text("Edit Profile")

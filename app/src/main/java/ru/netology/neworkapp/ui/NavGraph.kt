@@ -10,9 +10,7 @@ import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
-    object Feed : Screen("feed/{token}") {
-        fun createRoute(token: String) = "feed/${Uri.encode(token)}"
-    }
+    object Feed : Screen("feed")
     object CreatePost : Screen("create_post")
     object Profile : Screen("profile")
     object Register : Screen("register")
@@ -30,8 +28,8 @@ fun NavGraph(
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = { token ->
-                    navController.navigate(Screen.Feed.createRoute(token)) {
+                onLoginSuccess = {
+                    navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -40,10 +38,8 @@ fun NavGraph(
                 }
             )
         }
-        composable(Screen.Feed.route) { backStackEntry ->
-            val token = backStackEntry.arguments?.getString("token") ?: ""
+        composable(Screen.Feed.route) {
             FeedScreen(
-                token = token,
                 onCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
@@ -70,8 +66,8 @@ fun NavGraph(
         }
         composable(Screen.Register.route) {
             RegisterScreen(
-                onRegisterSuccess = { token ->
-                    navController.navigate(Screen.Feed.createRoute(token)) {
+                onRegisterSuccess = {
+                    navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }
                 }

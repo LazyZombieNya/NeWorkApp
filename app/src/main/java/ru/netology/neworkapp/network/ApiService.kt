@@ -22,19 +22,6 @@ interface ApiService {
     @GET("user")
     suspend fun getUser(@Header("Authorization") apiKey: String = BuildConfig.API_KEY): Response<User>
 
-
-    @POST("posts")
-    suspend fun createPost(
-        @Body post: Post,
-        @Header("Authorization") apiKey: String = BuildConfig.API_KEY
-    ): Response<Post>
-
-    //    @POST("register")
-//    suspend fun registerUser(@Body user: User, @Header("Authorization") apiKey: String = BuildConfig.API_KEY): Response<AuthResponse>
-//
-//    @POST("login")
-//    suspend fun loginUser(@Body credentials: Map<String, String>, @Header("Authorization") apiKey: String = BuildConfig.API_KEY): Response<AuthResponse>
-
     @FormUrlEncoded
     @POST("api/users/authentication")
     suspend fun loginUser(
@@ -54,5 +41,13 @@ interface ApiService {
     ): Response<AuthResponse>
 
     @GET("api/posts")
-    suspend fun getPosts(@Header("Authorization") token: String): Response<List<Post>>
+    suspend fun getPosts(
+        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY
+    ): Response<List<Post>>
+
+    @POST("api/posts")
+    suspend fun createPost(
+        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY,
+        @Body post: Post
+    ): Response<Post>
 }
