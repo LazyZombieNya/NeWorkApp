@@ -7,11 +7,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
+
 sealed class Screen(val route: String) {
     object Login : Screen("login")
-    object Feed : Screen("feed")
+    object Feed : Screen("feed/{token}") {
+        fun createRoute(token: String) = "feed/$token"
+    }
     object CreatePost : Screen("create_post")
     object Profile : Screen("profile")
+    object Register : Screen("register")
 }
 
 @Composable
@@ -26,15 +30,20 @@ fun NavGraph(
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(Screen.Feed.route) {
+                onLoginSuccess = { token ->
+                    navController.navigate(Screen.Feed.createRoute(token)) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
+                },
+                onRegisterClick = {
+                    navController.navigate(Screen.Register.route)
                 }
             )
         }
-        composable(Screen.Feed.route) {
+        composable(Screen.Feed.route) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
             FeedScreen(
+                token = token,
                 onCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
@@ -57,6 +66,15 @@ fun NavGraph(
 //                onProfileEdit = {
 //                    // Реализуйте редактирование профиля
 //                }
+            )
+        }
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                onRegisterSuccess = { token ->
+                    navController.navigate(Screen.Feed.createRoute(token)) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                }
             )
         }
     }

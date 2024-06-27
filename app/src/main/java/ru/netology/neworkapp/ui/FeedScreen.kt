@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.viewmodel.FeedViewModel
@@ -19,11 +20,16 @@ import ru.netology.neworkapp.viewmodel.FeedViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    feedViewModel: FeedViewModel = viewModel(),
+    token: String,
+    feedViewModel: FeedViewModel = hiltViewModel(),
     onCreatePost: () -> Unit,
     onProfileClick: () -> Unit
 ) {
     val posts by feedViewModel.posts.collectAsState()
+
+    LaunchedEffect(Unit) {
+        feedViewModel.loadPosts(token)
+    }
 
     Scaffold(
         topBar = {

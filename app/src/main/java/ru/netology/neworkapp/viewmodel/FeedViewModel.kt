@@ -18,13 +18,9 @@ class FeedViewModel @Inject constructor(
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
 
-    init {
-        loadPosts()
-    }
-
-    private fun loadPosts() {
+    fun loadPosts(token: String) {
         viewModelScope.launch {
-            val response = postRepository.getPosts()
+            val response = postRepository.getPosts(token)
             if (response.isSuccessful) {
                 _posts.value = response.body() ?: emptyList()
             } else {
