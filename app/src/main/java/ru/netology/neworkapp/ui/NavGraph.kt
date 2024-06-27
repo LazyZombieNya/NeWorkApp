@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.ui
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -7,11 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Feed : Screen("feed/{token}") {
-        fun createRoute(token: String) = "feed/$token"
+        fun createRoute(token: String) = "feed/${Uri.encode(token)}"
     }
     object CreatePost : Screen("create_post")
     object Profile : Screen("profile")
