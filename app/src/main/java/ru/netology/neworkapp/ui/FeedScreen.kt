@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,19 +12,28 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.viewmodel.FeedViewModel
+import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    feedViewModel: FeedViewModel = viewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = hiltViewModel(),
     onCreatePost: () -> Unit,
     onProfileClick: () -> Unit
 ) {
+    val token by sharedViewModel.token.collectAsState()
     val posts by feedViewModel.posts.collectAsState()
+
+    LaunchedEffect(token) {
+        token?.let { feedViewModel.loadPosts() }
+    }
 
     Scaffold(
         topBar = {
@@ -63,12 +73,16 @@ fun PostItem(post: Post) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = post.content, style = MaterialTheme.typography.bodyLarge)
+            Text(text = post.author, style = MaterialTheme.typography.titleMedium)
+            Text(text = post.content, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
-                Text(text = "Likes: ${post.likes}")
+                Text(text = "Likes: ${post.likeOwnerIds.size}")
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Comments: ${post.comments}")
+                Text(text = "Comments: ${post.mentionIds.size}")
+            }
+            post.attachment?.let { attachment ->
+                Text(text = "Attachment: ${attachment.url}", style = MaterialTheme.typography.bodySmall)
             }
         }
     }

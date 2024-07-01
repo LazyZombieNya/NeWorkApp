@@ -1,10 +1,13 @@
 package ru.netology.neworkapp.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -12,21 +15,26 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.netology.neworkapp.viewmodel.CreatePostViewModel
+import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
-    createPostViewModel: CreatePostViewModel = viewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel(),
+    createPostViewModel: CreatePostViewModel = hiltViewModel(),
     onPostCreated: () -> Unit
 ) {
+    val token by sharedViewModel.token.collectAsState()
     var content by remember { mutableStateOf("") }
-    val postState by createPostViewModel.postState.collectAsState()
+    val createPostState by createPostViewModel.createPostState.collectAsState()
 
-    LaunchedEffect(postState) {
-        if (postState == CreatePostViewModel.PostState.SUCCESS) {
+    LaunchedEffect(createPostState) {
+        if (createPostState is CreatePostViewModel.CreatePostState.Success) {
             onPostCreated()
         }
     }
@@ -44,11 +52,14 @@ fun CreatePostScreen(
             label = { Text("Content") }
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { createPostViewModel.createPost(content) }) {
-            Text("Post")
+        Button(onClick = { token?.let { createPostViewModel.createPost(it, content) } }) {
+            Text("Create Post")
         }
-        if (postState == CreatePostViewModel.PostState.LOADING) {
+        if (createPostState is CreatePostViewModel.CreatePostState.Loading) {
             CircularProgressIndicator()
+        }
+        if (createPostState is CreatePostViewModel.CreatePostState.Error) {
+            Text("Failed to create post. Please try again.", color = MaterialTheme.colorScheme.error)
         }
     }
 }
