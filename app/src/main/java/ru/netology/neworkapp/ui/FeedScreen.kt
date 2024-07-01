@@ -16,20 +16,23 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.viewmodel.FeedViewModel
+import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
+    sharedViewModel: SharedViewModel = hiltViewModel(),
     feedViewModel: FeedViewModel = hiltViewModel(),
     onCreatePost: () -> Unit,
     onProfileClick: () -> Unit
 ) {
+    val token by sharedViewModel.token.collectAsState()
     val posts by feedViewModel.posts.collectAsState()
 
-    LaunchedEffect(Unit) {
-        feedViewModel.loadPosts()
+    LaunchedEffect(token) {
+        token?.let { feedViewModel.loadPosts() }
     }
 
     Scaffold(

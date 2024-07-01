@@ -48,6 +48,7 @@ interface ApiService {
     @POST("api/posts")
     suspend fun createPost(
         @Header("Api-Key") apiKey: String = BuildConfig.API_KEY,
+        @Header("Authorization") token: String,
         @Body post: Post
     ): Response<Post>
 }

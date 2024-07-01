@@ -18,11 +18,11 @@ class CreatePostViewModel @Inject constructor(
     private val _createPostState = MutableStateFlow<CreatePostState>(CreatePostState.Idle)
     val createPostState: StateFlow<CreatePostState> = _createPostState
 
-    fun createPost(content: String) {
+    fun createPost(token: String, content: String) {
         viewModelScope.launch {
             _createPostState.value = CreatePostState.Loading
-            val post = Post(content = content)
-            val response = postRepository.createPost(post)
+            val post = Post(id = 0, content = content)
+            val response = postRepository.createPost(token, post)
             if (response.isSuccessful) {
                 _createPostState.value = CreatePostState.Success
             } else {

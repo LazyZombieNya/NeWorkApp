@@ -1,6 +1,8 @@
 package ru.netology.neworkapp.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -13,17 +15,21 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.netology.neworkapp.viewmodel.CreatePostViewModel
+import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
+    sharedViewModel: SharedViewModel = hiltViewModel(),
     createPostViewModel: CreatePostViewModel = hiltViewModel(),
     onPostCreated: () -> Unit
 ) {
+    val token by sharedViewModel.token.collectAsState()
     var content by remember { mutableStateOf("") }
     val createPostState by createPostViewModel.createPostState.collectAsState()
 
@@ -46,7 +52,7 @@ fun CreatePostScreen(
             label = { Text("Content") }
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { createPostViewModel.createPost(content) }) {
+        Button(onClick = { token?.let { createPostViewModel.createPost(it, content) } }) {
             Text("Create Post")
         }
         if (createPostState is CreatePostViewModel.CreatePostState.Loading) {

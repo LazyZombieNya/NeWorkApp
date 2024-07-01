@@ -3,10 +3,14 @@ package ru.netology.neworkapp.ui
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -19,6 +23,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun NavGraph(
     navController: NavHostController = rememberNavController(),
+    sharedViewModel: SharedViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -28,7 +33,8 @@ fun NavGraph(
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = {
+                onLoginSuccess = { token ->
+                    sharedViewModel.setToken(token)
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
@@ -66,7 +72,8 @@ fun NavGraph(
         }
         composable(Screen.Register.route) {
             RegisterScreen(
-                onRegisterSuccess = {
+                onRegisterSuccess = { token ->
+                    sharedViewModel.setToken(token)
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }
