@@ -12,8 +12,17 @@ class SharedViewModel @Inject constructor() : ViewModel() {
     private val _token = MutableStateFlow<String?>(null)
     val token: StateFlow<String?> = _token
 
-    fun setToken(newToken: String) {
+    init {
+        Log.d("SharedViewModel", "SharedViewModel created")
+    }
+
+    fun setToken(newToken: String?) {
         _token.value = newToken
         Log.d("SharedViewModel", "Token set: $newToken")
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("SharedViewModel", "SharedViewModel cleared")
     }
 }

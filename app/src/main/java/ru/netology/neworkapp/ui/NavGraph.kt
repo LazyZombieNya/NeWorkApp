@@ -1,6 +1,7 @@
 package ru.netology.neworkapp.ui
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +36,7 @@ fun NavGraph(
             LoginScreen(
                 onLoginSuccess = { token ->
                     sharedViewModel.setToken(token)
+                    Log.d("NavGraph", "Navigating to Feed with token: $token")
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
@@ -45,6 +47,7 @@ fun NavGraph(
             )
         }
         composable(Screen.Feed.route) {
+            Log.d("NavGraph", "Navigating to FeedScreen")
             FeedScreen(
                 onCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
@@ -55,6 +58,7 @@ fun NavGraph(
             )
         }
         composable(Screen.CreatePost.route) {
+            Log.d("NavGraph", "Navigating to CreatePostScreen")
             CreatePostScreen(
                 onPostCreated = {
                     navController.navigate(Screen.Feed.route) {
@@ -74,6 +78,7 @@ fun NavGraph(
             RegisterScreen(
                 onRegisterSuccess = { token ->
                     sharedViewModel.setToken(token)
+                    Log.d("NavGraph", "Navigating to Feed with token: $token")
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }

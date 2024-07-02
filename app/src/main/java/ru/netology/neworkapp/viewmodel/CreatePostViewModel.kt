@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,14 +20,17 @@ class CreatePostViewModel @Inject constructor(
     val createPostState: StateFlow<CreatePostState> = _createPostState
 
     fun createPost(token: String, content: String) {
+        Log.d("CreatePostViewModel", "Creating post with token: $token and content: $content")
         viewModelScope.launch {
             _createPostState.value = CreatePostState.Loading
             val post = Post(id = 0, content = content)
             val response = postRepository.createPost(token, post)
             if (response.isSuccessful) {
                 _createPostState.value = CreatePostState.Success
+                Log.d("CreatePostViewModel", "Post created successfully")
             } else {
                 _createPostState.value = CreatePostState.Error
+                Log.e("CreatePostViewModel", "Error creating post: ${response.errorBody()?.string()}")
             }
         }
     }

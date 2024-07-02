@@ -1,6 +1,7 @@
 package ru.netology.neworkapp.ui
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,7 +33,12 @@ fun FeedScreen(
     val posts by feedViewModel.posts.collectAsState()
 
     LaunchedEffect(token) {
-        token?.let { feedViewModel.loadPosts() }
+        token?.let {
+            Log.d("FeedScreen", "Token received: $token")
+            feedViewModel.loadPosts(it)
+        } ?: run {
+            Log.d("FeedScreen", "Token is null in FeedScreen")
+        }
     }
 
     Scaffold(

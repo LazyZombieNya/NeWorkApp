@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.ui
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +36,11 @@ fun CreatePostScreen(
 
     LaunchedEffect(createPostState) {
         if (createPostState is CreatePostViewModel.CreatePostState.Success) {
+            Log.d("CreatePostScreen", "Token received in CreatePostScreen: $token")
             onPostCreated()
+        }
+        if (token == null) {
+            Log.d("CreatePostScreen", "Token is null")
         }
     }
 
@@ -46,13 +51,21 @@ fun CreatePostScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Log.d("CreatePostScreen", "Initializing CreatePostScreen")
         TextField(
             value = content,
             onValueChange = { content = it },
             label = { Text("Content") }
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { token?.let { createPostViewModel.createPost(it, content) } }) {
+        Button(onClick = {
+            token?.let {
+                Log.d("CreatePostScreen", "Creating post with token: $token")
+                createPostViewModel.createPost(it, content)
+            } ?: run {
+                Log.d("CreatePostScreen", "Cannot create post, token is null")
+            }
+        }) {
             Text("Create Post")
         }
         if (createPostState is CreatePostViewModel.CreatePostState.Loading) {
