@@ -16,15 +16,15 @@ import ru.netology.neworkapp.viewmodel.SharedViewModel
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Feed : Screen("feed")
-    object CreatePost : Screen("create_post")
+    object CreatePost : Screen("createPost")
     object Profile : Screen("profile")
     object Register : Screen("register")
 }
 
 @Composable
 fun NavGraph(
-    navController: NavHostController = rememberNavController(),
-    sharedViewModel: SharedViewModel = hiltViewModel(),
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -49,6 +49,7 @@ fun NavGraph(
         composable(Screen.Feed.route) {
             Log.d("NavGraph", "Navigating to FeedScreen")
             FeedScreen(
+                sharedViewModel = sharedViewModel,
                 onCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
@@ -60,7 +61,9 @@ fun NavGraph(
         composable(Screen.CreatePost.route) {
             Log.d("NavGraph", "Navigating to CreatePostScreen")
             CreatePostScreen(
+                sharedViewModel = sharedViewModel,
                 onPostCreated = {
+
                     navController.navigate(Screen.Feed.route) {
                         popUpTo(Screen.Feed.route) { inclusive = true }
                     }

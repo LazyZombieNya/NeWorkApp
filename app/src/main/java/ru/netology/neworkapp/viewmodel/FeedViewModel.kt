@@ -19,15 +19,18 @@ class FeedViewModel @Inject constructor(
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
 
-    fun loadPosts(token: String) {
-        Log.d("FeedViewModel", "Loading posts with token: $token")
+    fun loadPosts() {
+        Log.d("FeedViewModel", "Loading posts")
         viewModelScope.launch {
-            val response = postRepository.getPosts(token)
+            val response = postRepository.getPosts()
             if (response.isSuccessful) {
-                _posts.value = response.body() ?: emptyList()
+                val responseBody = response.body()
+                Log.d("FeedViewModel", "Response body: $responseBody")
+                _posts.value = responseBody ?: emptyList()
                 Log.d("FeedViewModel", "Posts loaded: ${_posts.value.size}")
             } else {
-                Log.e("FeedViewModel", "Error loading posts: ${response.errorBody()?.string()}")
+                val errorBody = response.errorBody()?.string()
+                Log.e("FeedViewModel", "Error loading posts: $errorBody")
             }
         }
     }

@@ -41,13 +41,12 @@ interface ApiService {
 
     @GET("api/posts")
     suspend fun getPosts(
-        @Header("Api-Key") apiKey: String,
-        @Header("Authorization") token: String
+        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY
     ): Response<List<Post>>
 
     @POST("api/posts")
     suspend fun createPost(
-        @Header("Api-Key") apiKey: String,
+        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY,
         @Header("Authorization") token: String,
         @Body post: Post
     ): Response<Post>

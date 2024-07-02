@@ -24,23 +24,18 @@ import ru.netology.neworkapp.viewmodel.SharedViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
-    sharedViewModel: SharedViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel,
     feedViewModel: FeedViewModel = hiltViewModel(),
     onCreatePost: () -> Unit,
     onProfileClick: () -> Unit
 ) {
-    val token by sharedViewModel.token.collectAsState()
-    val posts by feedViewModel.posts.collectAsState()
-
-    LaunchedEffect(token) {
-        token?.let {
-            Log.d("FeedScreen", "Token received: $token")
-            feedViewModel.loadPosts(it)
-        } ?: run {
-            Log.d("FeedScreen", "Token is null in FeedScreen")
-        }
+    LaunchedEffect(Unit) {
+        feedViewModel.loadPosts()
     }
 
+    val posts by feedViewModel.posts.collectAsState()
+
+    // Отображение UI
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,7 +66,6 @@ fun FeedScreen(
         }
     )
 }
-
 @Composable
 fun PostItem(post: Post) {
     Card(

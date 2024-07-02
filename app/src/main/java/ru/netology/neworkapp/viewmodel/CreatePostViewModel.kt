@@ -23,7 +23,11 @@ class CreatePostViewModel @Inject constructor(
         Log.d("CreatePostViewModel", "Creating post with token: $token and content: $content")
         viewModelScope.launch {
             _createPostState.value = CreatePostState.Loading
-            val post = Post(id = 0, content = content)
+            val post = Post(
+                author = "", // Здесь вы можете вставить реального автора
+                content = content,
+                published = "2024-07-02T21:20:38.221223539Z" // Или используйте текущую дату и время
+            )
             val response = postRepository.createPost(token, post)
             if (response.isSuccessful) {
                 _createPostState.value = CreatePostState.Success

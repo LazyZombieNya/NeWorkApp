@@ -26,7 +26,7 @@ import ru.netology.neworkapp.viewmodel.SharedViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
-    sharedViewModel: SharedViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel,
     createPostViewModel: CreatePostViewModel = hiltViewModel(),
     onPostCreated: () -> Unit
 ) {
@@ -36,11 +36,7 @@ fun CreatePostScreen(
 
     LaunchedEffect(createPostState) {
         if (createPostState is CreatePostViewModel.CreatePostState.Success) {
-            Log.d("CreatePostScreen", "Token received in CreatePostScreen: $token")
             onPostCreated()
-        }
-        if (token == null) {
-            Log.d("CreatePostScreen", "Token is null")
         }
     }
 
@@ -60,10 +56,10 @@ fun CreatePostScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
             token?.let {
-                Log.d("CreatePostScreen", "Creating post with token: $token")
+                Log.d("CreatePostScreen", "Creating post with token: $it and content: $content")
                 createPostViewModel.createPost(it, content)
             } ?: run {
-                Log.d("CreatePostScreen", "Cannot create post, token is null")
+                Log.d("CreatePostScreen", "Token is null")
             }
         }) {
             Text("Create Post")
