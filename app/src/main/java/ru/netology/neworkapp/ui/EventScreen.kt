@@ -52,16 +52,7 @@ fun EventScreen(
     val events by eventViewModel.events.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Events") },
-                actions = {
-                    IconButton(onClick = onProfileClick) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
-                    }
-                }
-            )
-        },
+
         floatingActionButton = {
             FloatingActionButton(onClick = onCreateEvent) {
                 Icon(Icons.Default.Add, contentDescription = "Create Event")

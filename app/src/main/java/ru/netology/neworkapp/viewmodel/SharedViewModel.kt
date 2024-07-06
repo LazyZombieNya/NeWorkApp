@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,5 +25,20 @@ class SharedViewModel @Inject constructor() : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         Log.d("SharedViewModel", "SharedViewModel cleared")
+    }
+
+    //Чтобы скрывать topBar и bottomBar при переходе к другому
+    private val _showTopBar = MutableStateFlow(true)
+    val showTopBar: StateFlow<Boolean> = _showTopBar.asStateFlow()
+
+    private val _showBottomBar = MutableStateFlow(true)
+    val showBottomBar: StateFlow<Boolean> = _showBottomBar.asStateFlow()
+
+    fun setShowTopBar(show: Boolean) {
+        _showTopBar.value = show
+    }
+
+    fun setShowBottomBar(show: Boolean) {
+        _showBottomBar.value = show
     }
 }

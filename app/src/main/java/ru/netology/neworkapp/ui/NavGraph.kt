@@ -15,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -39,58 +41,64 @@ fun NavGraph(
     sharedViewModel: SharedViewModel
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val showTopBar by sharedViewModel.showTopBar.collectAsState()
+    val showBottomBar by sharedViewModel.showBottomBar.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("NeWork App") },
-                actions = {
-                    IconButton(onClick = {
-                        navController.navigate("login")
-                    }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
+            if (showTopBar) {
+                TopAppBar(
+                    title = { Text("NeWork App") },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate("login")
+                        }) {
+                            Icon(Icons.Default.Person, contentDescription = "Profile")
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
-            BottomNavigation {
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Posts") },
-                    label = { Text("Posts") },
-                    selected = navController.currentDestination?.route == "posts",
-                    onClick = {
-                        coroutineScope.launch {
-                            navController.navigate("posts") {
-                                popUpTo("posts") { inclusive = true }
+            if (showBottomBar) {
+                BottomNavigation {
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Posts") },
+                        label = { Text("Posts") },
+                        selected = navController.currentDestination?.route == "posts",
+                        onClick = {
+                            coroutineScope.launch {
+                                navController.navigate("posts") {
+                                    popUpTo("posts") { inclusive = true }
+                                }
                             }
                         }
-                    }
-                )
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Event, contentDescription = "Events") },
-                    label = { Text("Events") },
-                    selected = navController.currentDestination?.route == "events",
-                    onClick = {
-                        coroutineScope.launch {
-                            navController.navigate("events") {
-                                popUpTo("events") { inclusive = true }
+                    )
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.Event, contentDescription = "Events") },
+                        label = { Text("Events") },
+                        selected = navController.currentDestination?.route == "events",
+                        onClick = {
+                            coroutineScope.launch {
+                                navController.navigate("events") {
+                                    popUpTo("events") { inclusive = true }
+                                }
                             }
                         }
-                    }
-                )
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Group, contentDescription = "Users") },
-                    label = { Text("Users") },
-                    selected = navController.currentDestination?.route == "users",
-                    onClick = {
-                        coroutineScope.launch {
-                            navController.navigate("users") {
-                                popUpTo("users") { inclusive = true }
+                    )
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.Group, contentDescription = "Users") },
+                        label = { Text("Users") },
+                        selected = navController.currentDestination?.route == "users",
+                        onClick = {
+                            coroutineScope.launch {
+                                navController.navigate("users") {
+                                    popUpTo("users") { inclusive = true }
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -100,6 +108,8 @@ fun NavGraph(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("posts") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 FeedScreen(
                     sharedViewModel = sharedViewModel,
                     onCreatePost = { navController.navigate("createPost") },
@@ -107,30 +117,48 @@ fun NavGraph(
                 )
             }
             composable("events") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 EventScreen(
                     onCreateEvent = { navController.navigate("createEvent") },
                     onProfileClick = { navController.navigate("profile") }
                 )
             }
             composable("users") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 UserScreen(onUserClick = { userId -> navController.navigate("userDetail/$userId") })
             }
             composable("createPost") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 CreatePostScreen(
                     sharedViewModel = sharedViewModel,
                     onPostCreated = { navController.navigate("posts") }
                 )
             }
             composable("createEvent") {
+                sharedViewModel.setShowTopBar(false)
+                sharedViewModel.setShowBottomBar(false)
                 CreateEventScreen(
                     sharedViewModel = sharedViewModel,
-                    onEventCreated = { navController.navigate("events") }
+                    onEventCreated = {
+                        sharedViewModel.setShowTopBar(true)
+                        sharedViewModel.setShowBottomBar(true)
+                        navController.navigate("events")
+                    },
+                    onLocationClick = { /* Handle location click */ },
+                    onSpeakersClick = { /* Handle speakers click */ }
                 )
             }
             composable("profile") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 ProfileScreen()
             }
             composable("login") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 LoginScreen(
                     onLoginSuccess = { token ->
                         sharedViewModel.setToken(token)
@@ -142,6 +170,8 @@ fun NavGraph(
                 )
             }
             composable("register") {
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
                 RegisterScreen(
                     onRegisterSuccess = { token ->
                         sharedViewModel.setToken(token)
@@ -153,7 +183,9 @@ fun NavGraph(
             }
             composable("userDetail/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId")
-                UserDetailScreen(userId = userId)
+                sharedViewModel.setShowTopBar(true)
+                sharedViewModel.setShowBottomBar(true)
+                UserDetailScreen(userId = userId?.toLongOrNull().toString())
             }
         }
     }

@@ -8,6 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+
 class EventRepository @Inject constructor(
     private val apiService: ApiService
 ) {
@@ -16,8 +17,7 @@ class EventRepository @Inject constructor(
     }
 
     suspend fun createEvent(token: String, event: Event): Response<Event> {
-        return apiService.createEvent(apiKey = BuildConfig.API_KEY, token = "Bearer $token", event = event)
+        return apiService.createEvent(apiKey = BuildConfig.API_KEY, token = "$token", event = event)
     }
-
     // TODO Методы для редактирования и удаления событий
 }

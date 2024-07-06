@@ -68,6 +68,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.material)
     var hiltVersion = "2.51.1"
 
     implementation(libs.androidx.core.ktx)

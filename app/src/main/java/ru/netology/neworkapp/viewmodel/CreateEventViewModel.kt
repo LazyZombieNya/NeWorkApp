@@ -27,7 +27,7 @@ class CreateEventViewModel @Inject constructor(
                 authorId = 0, // Замените на реальный ID автора
                 author = "123", // Замените на реального автора
                 content = content,
-                published = "2024-07-02T21:20:38.221223539Z", // Замените на текущую дату и время
+                published = datetime, // Используйте текущую дату и время
                 datetime = datetime,
                 type = type
             )
