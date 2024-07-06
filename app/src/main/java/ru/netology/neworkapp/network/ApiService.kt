@@ -10,16 +10,17 @@ import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Multipart
+import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.netology.neworkapp.BuildConfig
 import ru.netology.neworkapp.data.AuthResponse
+import ru.netology.neworkapp.data.Event
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.data.User
 
 interface ApiService {
-    @GET("user")
-    suspend fun getUser(@Header("Authorization") apiKey: String = BuildConfig.API_KEY): Response<User>
 
     @FormUrlEncoded
     @POST("api/users/authentication")
@@ -50,4 +51,38 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body post: Post
     ): Response<Post>
+
+    @GET("api/events")
+    suspend fun getEvents(
+        @Header("Api-Key") apiKey: String
+    ): Response<List<Event>>
+
+    @POST("api/events")
+    suspend fun createEvent(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Body event: Event
+    ): Response<Event>
+
+    @GET("api/users")
+    suspend fun getUsers(
+        @Header("Api-Key") apiKey: String
+    ): Response<List<User>>
+
+    @GET("api/users/{id}")
+    suspend fun getUserDetail(
+        @Header("Api-Key") apiKey: String,
+        @Path("id") userId: String
+    ): Response<User>
+
+    @GET("api/profile")
+    suspend fun getProfile(
+        @Header("Api-Key") apiKey: String
+    ): Response<User>
+
+    @PUT("api/profile")
+    suspend fun updateProfile(
+        @Header("Api-Key") apiKey: String,
+        @Body user: User
+    ): Response<User>
 }

@@ -32,7 +32,18 @@ class UserRepository @Inject constructor(
         return apiService.registerUser(loginBody, passwordBody, nameBody, filePart, BuildConfig.API_KEY)
     }
 
-    suspend fun getUser(): Response<User> {
-        return RetrofitClient.instance.getUser()
+    suspend fun getUsers(): Response<List<User>> {
+        return apiService.getUsers(apiKey = BuildConfig.API_KEY)
+    }
+
+    suspend fun getUserDetail(userId: String): Response<User> {
+        return apiService.getUserDetail(apiKey = BuildConfig.API_KEY, userId = userId)
+    }
+    suspend fun getProfile(): Response<User> {
+        return apiService.getProfile(apiKey = BuildConfig.API_KEY)
+    }
+
+    suspend fun updateProfile(user: User): Response<User> {
+        return apiService.updateProfile(apiKey = BuildConfig.API_KEY, user = user)
     }
 }

@@ -18,13 +18,3 @@ data class Post(
     val users: Map<String, User> = emptyMap()
 )
 
-data class Coordinates(
-    val lat: Double,
-    val long: Double
-)
-
-data class Attachment(
-    val url: String,
-    val type: String
-)
-

@@ -1,6 +1,8 @@
 package ru.netology.neworkapp.viewmodel
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.repository.PostRepository
+import ru.netology.neworkapp.util.CurrentDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +22,7 @@ class CreatePostViewModel @Inject constructor(
     private val _createPostState = MutableStateFlow<CreatePostState>(CreatePostState.Idle)
     val createPostState: StateFlow<CreatePostState> = _createPostState
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun createPost(token: String, content: String) {
         Log.d("CreatePostViewModel", "Creating post with token: $token and content: $content")
         viewModelScope.launch {
@@ -26,7 +30,7 @@ class CreatePostViewModel @Inject constructor(
             val post = Post(
                 author = "", // Здесь вы можете вставить реального автора
                 content = content,
-                published = "2024-07-02T21:20:38.221223539Z" // Или используйте текущую дату и время
+                published = CurrentDateTime.getFormattedCurrentDateTime()
             )
             val response = postRepository.createPost(token, post)
             if (response.isSuccessful) {

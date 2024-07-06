@@ -1,16 +1,27 @@
 package ru.netology.neworkapp.ui
 
-import android.net.Uri
-import android.util.Log
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
 import ru.netology.neworkapp.viewmodel.SharedViewModel
 
 sealed class Screen(val route: String) {
@@ -21,72 +32,129 @@ sealed class Screen(val route: String) {
     object Register : Screen("register")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavGraph(
-    navController: NavHostController,
-    sharedViewModel: SharedViewModel,
-    modifier: Modifier = Modifier
+    navController: NavHostController = rememberNavController(),
+    sharedViewModel: SharedViewModel
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Login.route,
-        modifier = modifier
-    ) {
-        composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginSuccess = { token ->
-                    sharedViewModel.setToken(token)
-                    Log.d("NavGraph", "Navigating to Feed with token: $token")
-                    navController.navigate(Screen.Feed.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                },
-                onRegisterClick = {
-                    navController.navigate(Screen.Register.route)
-                }
-            )
-        }
-        composable(Screen.Feed.route) {
-            Log.d("NavGraph", "Navigating to FeedScreen")
-            FeedScreen(
-                sharedViewModel = sharedViewModel,
-                onCreatePost = {
-                    navController.navigate(Screen.CreatePost.route)
-                },
-                onProfileClick = {
-                    navController.navigate(Screen.Profile.route)
-                }
-            )
-        }
-        composable(Screen.CreatePost.route) {
-            Log.d("NavGraph", "Navigating to CreatePostScreen")
-            CreatePostScreen(
-                sharedViewModel = sharedViewModel,
-                onPostCreated = {
+    val coroutineScope = rememberCoroutineScope()
 
-                    navController.navigate(Screen.Feed.route) {
-                        popUpTo(Screen.Feed.route) { inclusive = true }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("NeWork App") },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate("login")
+                    }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
                     }
                 }
             )
-        }
-        composable(Screen.Profile.route) {
-            ProfileScreen(
-//                onProfileEdit = {
-//                    // Реализуйте редактирование профиля
-//                }
-            )
-        }
-        composable(Screen.Register.route) {
-            RegisterScreen(
-                onRegisterSuccess = { token ->
-                    sharedViewModel.setToken(token)
-                    Log.d("NavGraph", "Navigating to Feed with token: $token")
-                    navController.navigate(Screen.Feed.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
+        },
+        bottomBar = {
+            BottomNavigation {
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Posts") },
+                    label = { Text("Posts") },
+                    selected = navController.currentDestination?.route == "posts",
+                    onClick = {
+                        coroutineScope.launch {
+                            navController.navigate("posts") {
+                                popUpTo("posts") { inclusive = true }
+                            }
+                        }
                     }
-                }
-            )
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Default.Event, contentDescription = "Events") },
+                    label = { Text("Events") },
+                    selected = navController.currentDestination?.route == "events",
+                    onClick = {
+                        coroutineScope.launch {
+                            navController.navigate("events") {
+                                popUpTo("events") { inclusive = true }
+                            }
+                        }
+                    }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Default.Group, contentDescription = "Users") },
+                    label = { Text("Users") },
+                    selected = navController.currentDestination?.route == "users",
+                    onClick = {
+                        coroutineScope.launch {
+                            navController.navigate("users") {
+                                popUpTo("users") { inclusive = true }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "posts",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("posts") {
+                FeedScreen(
+                    sharedViewModel = sharedViewModel,
+                    onCreatePost = { navController.navigate("createPost") },
+                    onProfileClick = { navController.navigate("profile") }
+                )
+            }
+            composable("events") {
+                EventScreen(
+                    onCreateEvent = { navController.navigate("createEvent") },
+                    onProfileClick = { navController.navigate("profile") }
+                )
+            }
+            composable("users") {
+                UserScreen(onUserClick = { userId -> navController.navigate("userDetail/$userId") })
+            }
+            composable("createPost") {
+                CreatePostScreen(
+                    sharedViewModel = sharedViewModel,
+                    onPostCreated = { navController.navigate("posts") }
+                )
+            }
+            composable("createEvent") {
+                CreateEventScreen(
+                    sharedViewModel = sharedViewModel,
+                    onEventCreated = { navController.navigate("events") }
+                )
+            }
+            composable("profile") {
+                ProfileScreen()
+            }
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = { token ->
+                        sharedViewModel.setToken(token)
+                        navController.navigate("posts") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    onRegisterClick = { navController.navigate("register") }
+                )
+            }
+            composable("register") {
+                RegisterScreen(
+                    onRegisterSuccess = { token ->
+                        sharedViewModel.setToken(token)
+                        navController.navigate("posts") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable("userDetail/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId")
+                UserDetailScreen(userId = userId)
+            }
         }
     }
 }

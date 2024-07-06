@@ -20,17 +20,12 @@ class FeedViewModel @Inject constructor(
     val posts: StateFlow<List<Post>> = _posts
 
     fun loadPosts() {
-        Log.d("FeedViewModel", "Loading posts")
         viewModelScope.launch {
             val response = postRepository.getPosts()
             if (response.isSuccessful) {
-                val responseBody = response.body()
-                Log.d("FeedViewModel", "Response body: $responseBody")
-                _posts.value = responseBody ?: emptyList()
-                Log.d("FeedViewModel", "Posts loaded: ${_posts.value.size}")
+                _posts.value = response.body() ?: emptyList()
             } else {
-                val errorBody = response.errorBody()?.string()
-                Log.e("FeedViewModel", "Error loading posts: $errorBody")
+                Log.e("FeedViewModel", "Error loading posts: ${response.errorBody()?.string()}")
             }
         }
     }
