@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,20 +16,27 @@ class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
+    private val _profile = MutableStateFlow<User?>(null)
+    val profile: StateFlow<User?> = _profile
 
-    init {
-        loadUser()
+    fun loadProfile() {
+        viewModelScope.launch {
+            val response = userRepository.getProfile()
+            if (response.isSuccessful) {
+                _profile.value = response.body()
+            } else {
+                Log.e("ProfileViewModel", "Error loading profile: ${response.errorBody()?.string()}")
+            }
+        }
     }
 
-    private fun loadUser() {
+    fun updateProfile(user: User) {
         viewModelScope.launch {
-            val response = userRepository.getUser()
+            val response = userRepository.updateProfile(user)
             if (response.isSuccessful) {
-                _user.value = response.body()
+                _profile.value = response.body()
             } else {
-                // Обработка ошибок
+                Log.e("ProfileViewModel", "Error updating profile: ${response.errorBody()?.string()}")
             }
         }
     }

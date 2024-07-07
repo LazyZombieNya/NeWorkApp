@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.netology.neworkapp.data.Post
-import ru.netology.neworkapp.repository.PostRepository
+import ru.netology.neworkapp.data.Event
+import ru.netology.neworkapp.repository.EventRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class FeedViewModel @Inject constructor(
-    private val postRepository: PostRepository
+class EventViewModel @Inject constructor(
+    private val eventRepository: EventRepository
 ) : ViewModel() {
 
-    private val _posts = MutableStateFlow<List<Post>>(emptyList())
-    val posts: StateFlow<List<Post>> get() = _posts.asStateFlow()
+    private val _events = MutableStateFlow<List<Event>>(emptyList())
+    val events: StateFlow<List<Event>> get() = _events.asStateFlow()
 
     private var token: String? = null
     private var currentUserId: Int = 0
@@ -29,27 +29,24 @@ class FeedViewModel @Inject constructor(
     }
 
     init {
-        loadPosts()
+        loadEvents()
     }
 
-    fun loadPosts() {
+    fun loadEvents() {
         viewModelScope.launch {
             try {
-                val response = postRepository.getPosts()
-                _posts.value = response
-                Log.d("FeedViewModel", "Posts loaded successfully: ${response.size}")
+                _events.value = eventRepository.getEvents()
             } catch (e: Exception) {
-                Log.e("FeedViewModel", "Error loading posts", e)
+                // Handle error
             }
         }
     }
-
-    fun likePost(postId: Int) {
+    fun likeEvent(eventId: Int) {
         if (token != null) {
             viewModelScope.launch {
                 try {
-                    postRepository.likePost(token!!, postId)
-                    loadPosts()
+                    eventRepository.likeEvent(token!!, eventId)
+                    loadEvents()
                 } catch (e: Exception) {
                     // Handle error
                 }
@@ -57,16 +54,17 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun deletePost(postId: Int) {
+    fun deleteEvent(eventId: Int) {
         if (token != null) {
             viewModelScope.launch {
                 try {
-                    postRepository.deletePost(token!!, postId)
-                    loadPosts()
+                    eventRepository.deleteEvent(token!!, eventId)
+                    loadEvents()
                 } catch (e: Exception) {
                     // Handle error
                 }
             }
         }
     }
+
 }
