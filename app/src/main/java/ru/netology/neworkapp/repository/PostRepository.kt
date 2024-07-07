@@ -13,8 +13,24 @@ import javax.inject.Singleton
 class PostRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getPosts(): Response<List<Post>> {
+    suspend fun updatePost(token: String, post: Post): Post {
+        return apiService.updatePost(apiKey = BuildConfig.API_KEY, token = "$token", postId = post.id, post = post)
+    }
+
+    suspend fun likePost(token: String, postId: Int) {
+        apiService.likePost(apiKey = BuildConfig.API_KEY, token = "$token", postId = postId)
+    }
+
+    suspend fun deletePost(token: String, postId: Int) {
+        apiService.deletePost(apiKey = BuildConfig.API_KEY, token = "$token", postId = postId)
+    }
+
+    suspend fun getPosts(): List<Post> {
         return apiService.getPosts()
+    }
+
+    suspend fun getPostById(postId: Int): Post {
+        return apiService.getPostById(postId)
     }
 
 //    suspend fun getPosts(): Response<List<Post>> {

@@ -2,11 +2,18 @@ package ru.netology.neworkapp.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.graphics.Bitmap
 import android.icu.util.Calendar
+import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.TimePicker
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -35,18 +42,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import ru.netology.neworkapp.viewmodel.CreateEventViewModel
 import ru.netology.neworkapp.viewmodel.SharedViewModel
+import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun CreateEventScreen(
+    navController: NavController,
     sharedViewModel: SharedViewModel,
     createEventViewModel: CreateEventViewModel = hiltViewModel(),
     onEventCreated: () -> Unit,
@@ -56,7 +64,7 @@ fun CreateEventScreen(
     val token by sharedViewModel.token.collectAsState()
     var content by remember { mutableStateOf("") }
     var datetime by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("online") }
+    var type by remember { mutableStateOf("ONLINE") }
     val createEventState by createEventViewModel.createEventState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val calendar = Calendar.getInstance()
@@ -72,7 +80,7 @@ fun CreateEventScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
-    var imageUri by remember { mutableStateOf<String?>(null) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -105,21 +113,54 @@ fun CreateEventScreen(
         ).show()
     }
 
+    val saveImageToGallery: (Bitmap) -> Uri? = { bitmap ->
+        val contentResolver: ContentResolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "event_image_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/NeWorkApp")
+        }
+        val uri: Uri? = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        uri?.let {
+            val outputStream: OutputStream? = contentResolver.openOutputStream(it)
+            outputStream.use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream!!)
+            }
+        }
+        uri
+    }
+
+    val takePhotoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        bitmap?.let {
+            val uri = saveImageToGallery(it)
+            if (uri != null) {
+                imageUri = uri
+            }
+        }
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        imageUri = uri
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("New event") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back action */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
+
                 actions = {
                     IconButton(onClick = {
-                        token?.let {
-                            createEventViewModel.createEvent(it, content, datetime, type)
-                        } ?: run {
-                            Log.d("CreateEventScreen", "Token is null")
+                        if (token != null && content.isNotBlank() && datetime.isNotBlank()) {
+
+                            createEventViewModel.createEvent(token!!, content, datetime,type)
+                            //createPostViewModel.createPost(it, content)
+                        } else {
+                            Log.d("CreateEventScreen", "Token:$token or content:$content or datetime:$datetime is null/empty")
                         }
                     }) {
                         Icon(Icons.Default.Check, contentDescription = "Save")
@@ -164,10 +205,10 @@ fun CreateEventScreen(
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(onClick = { /* Take Photo */ }) {
+                    IconButton(onClick = { takePhotoLauncher.launch(null) }) {
                         Icon(Icons.Default.PhotoCamera, contentDescription = "Take Photo")
                     }
-                    IconButton(onClick = { /* Pick Image */ }) {
+                    IconButton(onClick = { pickImageLauncher.launch("image/*") }) {
                         Icon(Icons.Default.Image, contentDescription = "Pick Image")
                     }
                     IconButton(onClick = onSpeakersClick) {
@@ -191,31 +232,36 @@ fun CreateEventScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text("Date")
-                TextField(
-                    value = datetime,
-                    onValueChange = { datetime = it },
-                    label = { Text("MM/dd/yyyy HH:mm") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Text("Select Date and Time")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextField(
+                        value = datetime,
+                        onValueChange = { datetime = it },
+                        label = { Text("MM/dd/yyyy HH:mm") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Type")
                 Row {
                     RadioButton(
-                        selected = type == "online",
-                        onClick = { type = "online" }
+                        selected = type == "ONLINE",
+                        onClick = { type = "ONLINE"}
                     )
                     Text("Online", modifier = Modifier.padding(start = 8.dp))
                     Spacer(modifier = Modifier.width(16.dp))
                     RadioButton(
-                        selected = type == "offline",
-                        onClick = { type = "offline" }
+                        selected = type == "OFFLINE",
+                        onClick = { type = "OFFLINE" }
                     )
                     Text("Offline", modifier = Modifier.padding(start = 8.dp))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { showBottomSheet = false }) {
-                    Text("Save")
+                Button(onClick = { showBottomSheet = false },modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text("Ok")
                 }
             }
         }

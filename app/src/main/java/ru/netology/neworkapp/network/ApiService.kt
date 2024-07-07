@@ -7,13 +7,13 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Multipart
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
-import retrofit2.http.Query
 import ru.netology.neworkapp.BuildConfig
 import ru.netology.neworkapp.data.AuthResponse
 import ru.netology.neworkapp.data.Event
@@ -40,10 +40,11 @@ interface ApiService {
         @Header("Api-Key") apiKey: String = BuildConfig.API_KEY
     ): Response<AuthResponse>
 
-    @GET("api/posts")
-    suspend fun getPosts(
-        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY
-    ): Response<List<Post>>
+//    @GET("api/posts")
+//    suspend fun getPosts(
+//        @Header("Api-Key") apiKey: String = BuildConfig.API_KEY
+//    ): Response<List<Post>>
+
 
     @POST("api/posts")
     suspend fun createPost(
@@ -52,18 +53,78 @@ interface ApiService {
         @Body post: Post
     ): Response<Post>
 
-    @GET("api/events")
-    suspend fun getEvents(
-        @Header("Api-Key") apiKey: String
-    ): Response<List<Event>>
+    @PUT("api/posts/{id}")
+    suspend fun updatePost(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int,
+        @Body post: Post
+    ): Post
 
-    @POST("api/events")
+    @GET("api/posts")
+    suspend fun getPosts(): List<Post>
+
+    @GET("api/posts/{id}")
+    suspend fun getPostById(@Path("id") postId: Int): Post
+
+    @POST("api/posts/{id}/likes")
+    suspend fun likePost(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int
+    )
+
+    @DELETE("api/posts/{id}")
+    suspend fun deletePost(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") postId: Int
+    )
+
+    //Event
+
+    @POST("events")
     suspend fun createEvent(
         @Header("Api-Key") apiKey: String,
         @Header("Authorization") token: String,
         @Body event: Event
     ): Response<Event>
 
+    @PUT("events/{id}")
+    suspend fun updateEvent(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") eventId: Long,
+        @Body event: Event
+    ): Response<Event>
+
+    @POST("events/{id}/likes")
+    suspend fun likeEvent(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") eventId: Int
+    )
+
+    @DELETE("events/{id}")
+    suspend fun deleteEvent(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Path("id") eventId: Int
+    )
+
+    @GET("events")
+    suspend fun getEvents(
+        @Header("Api-Key") apiKey: String
+    ): List<Event>
+
+    @GET("events/{id}")
+    suspend fun getEventById(
+        @Header("Api-Key") apiKey: String,
+        @Path("id") eventId: Int
+    ): Event
+
+
+    //User
     @GET("api/users")
     suspend fun getUsers(
         @Header("Api-Key") apiKey: String
@@ -74,6 +135,13 @@ interface ApiService {
         @Header("Api-Key") apiKey: String,
         @Path("id") userId: String
     ): Response<User>
+
+    @POST("api/users/ids")
+    suspend fun getUsersByIds(
+        @Header("Api-Key") apiKey: String,
+        @Header("Authorization") token: String,
+        @Body ids: List<Int>
+    ): List<User>
 
     @GET("api/profile")
     suspend fun getProfile(

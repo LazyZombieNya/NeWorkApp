@@ -2,15 +2,15 @@ package ru.netology.neworkapp.data
 
 data class Event(
     val id: Long = 0,
-    val authorId: Long,
-    val author: String,
+    val authorId: Long = 0,
+    val author: String = "",
     val authorJob: String? = null,
     val authorAvatar: String? = null,
     val content: String,
     val datetime: String,
     val published: String,
     val coords: Coordinates? = null,
-    val type: String,  // "offline" или "online"
+    val type: String="OFFLINE",
     val likeOwnerIds: List<Long> = emptyList(),
     val likedByMe: Boolean = false,
     val speakerIds: List<Long> = emptyList(),

@@ -39,6 +39,10 @@ class UserRepository @Inject constructor(
     suspend fun getUserDetail(userId: String): Response<User> {
         return apiService.getUserDetail(apiKey = BuildConfig.API_KEY, userId = userId)
     }
+
+    suspend fun getUsersByIds(token: String, ids: List<Int>): List<User> {
+        return apiService.getUsersByIds(apiKey = BuildConfig.API_KEY, token = "$token", ids = ids)
+    }
     suspend fun getProfile(): Response<User> {
         return apiService.getProfile(apiKey = BuildConfig.API_KEY)
     }

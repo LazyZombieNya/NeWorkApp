@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.repository.PostRepository
@@ -17,15 +18,52 @@ class FeedViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
-    val posts: StateFlow<List<Post>> = _posts
+    val posts: StateFlow<List<Post>> get() = _posts.asStateFlow()
+
+    private var token: String? = null
+    private var currentUserId: Int = 0
+
+    fun setTokenAndUserId(token: String?, userId: Int) {
+        this.token = token
+        this.currentUserId = userId
+    }
+
+    init {
+        loadPosts()
+    }
 
     fun loadPosts() {
         viewModelScope.launch {
-            val response = postRepository.getPosts()
-            if (response.isSuccessful) {
-                _posts.value = response.body() ?: emptyList()
-            } else {
-                Log.e("FeedViewModel", "Error loading posts: ${response.errorBody()?.string()}")
+            try {
+                _posts.value = postRepository.getPosts()
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun likePost(postId: Int) {
+        if (token != null) {
+            viewModelScope.launch {
+                try {
+                    postRepository.likePost(token!!, postId)
+                    loadPosts()
+                } catch (e: Exception) {
+                    // Handle error
+                }
+            }
+        }
+    }
+
+    fun deletePost(postId: Int) {
+        if (token != null) {
+            viewModelScope.launch {
+                try {
+                    postRepository.deletePost(token!!, postId)
+                    loadPosts()
+                } catch (e: Exception) {
+                    // Handle error
+                }
             }
         }
     }

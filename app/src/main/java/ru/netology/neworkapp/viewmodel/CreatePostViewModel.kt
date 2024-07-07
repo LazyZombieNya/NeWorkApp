@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.netology.neworkapp.data.Post
 import ru.netology.neworkapp.repository.PostRepository
-import ru.netology.neworkapp.util.CurrentDateTime
+import ru.netology.neworkapp.util.ConvertDateTime.getFormattedCurrentDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,26 +19,50 @@ class CreatePostViewModel @Inject constructor(
     private val postRepository: PostRepository
 ) : ViewModel() {
 
-    private val _createPostState = MutableStateFlow<CreatePostState>(CreatePostState.Idle)
-    val createPostState: StateFlow<CreatePostState> = _createPostState
+    private var token: String? = null
+    private var currentUserId: Int = 0
+
+    fun setTokenAndUserId(token: String?, userId: Int) {
+        this.token = token
+        this.currentUserId = userId
+    }
+
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun createPost(token: String, content: String) {
+//        Log.d("CreatePostViewModel", "Creating post with token: $token and content: $content")
+//        viewModelScope.launch {
+//            _createPostState.value = CreatePostState.Loading
+//            val post = Post(
+//                author = "", // Здесь вы можете вставить реального автора
+//                content = content,
+//                published = getFormattedCurrentDateTime()
+//            )
+//            val response = postRepository.createPost(token, post)
+//            if (response.isSuccessful) {
+//                _createPostState.value = CreatePostState.Success
+//                Log.d("CreatePostViewModel", "Post created successfully")
+//            } else {
+//                _createPostState.value = CreatePostState.Error
+//                Log.e("CreatePostViewModel", "Error creating post: ${response.errorBody()?.string()}")
+//            }
+//        }
+//    }
+@RequiresApi(Build.VERSION_CODES.O)
+fun createPost(content: String) {
+    if (token != null) {
+        viewModelScope.launch {
+            val newPost = Post(content = content, author = "Your Author", authorId = currentUserId, published = getFormattedCurrentDateTime())
+            postRepository.createPost(token!!, newPost)
+        }
+    }
+}
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createPost(token: String, content: String) {
-        Log.d("CreatePostViewModel", "Creating post with token: $token and content: $content")
-        viewModelScope.launch {
-            _createPostState.value = CreatePostState.Loading
-            val post = Post(
-                author = "", // Здесь вы можете вставить реального автора
-                content = content,
-                published = CurrentDateTime.getFormattedCurrentDateTime()
-            )
-            val response = postRepository.createPost(token, post)
-            if (response.isSuccessful) {
-                _createPostState.value = CreatePostState.Success
-                Log.d("CreatePostViewModel", "Post created successfully")
-            } else {
-                _createPostState.value = CreatePostState.Error
-                Log.e("CreatePostViewModel", "Error creating post: ${response.errorBody()?.string()}")
+    fun updatePost(postId: Int, content: String) {
+        if (token != null) {
+            viewModelScope.launch {
+                val updatedPost = Post(id = postId, content = content, author = "Your Author", authorId = currentUserId, published = getFormattedCurrentDateTime())
+                postRepository.updatePost(token!!, updatedPost)
             }
         }
     }

@@ -50,16 +50,16 @@ fun UserScreen(
     val users by userViewModel.users.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Users") },
-                actions = {
-                    IconButton(onClick = { /* Add action if needed */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
-                    }
-                }
-            )
-        },
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("Users") },
+//                actions = {
+//                    IconButton(onClick = { /* Add action if needed */ }) {
+//                        Icon(Icons.Default.Person, contentDescription = "Profile")
+//                    }
+//                }
+//            )
+//        },
         content = {
             LazyColumn(
                 modifier = Modifier
