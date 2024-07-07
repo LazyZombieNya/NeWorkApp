@@ -49,9 +49,12 @@ class CreatePostViewModel @Inject constructor(
 //    }
 @RequiresApi(Build.VERSION_CODES.O)
 fun createPost(content: String) {
+    Log.e("CreatePostViewModel", "token:$token")
     if (token != null) {
         viewModelScope.launch {
+            Log.e("CreatePostViewModel", "content: $content, token:$token, authorId$currentUserId")
             val newPost = Post(content = content, author = "Your Author", authorId = currentUserId, published = getFormattedCurrentDateTime())
+
             postRepository.createPost(token!!, newPost)
         }
     }

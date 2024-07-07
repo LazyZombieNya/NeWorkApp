@@ -1,5 +1,6 @@
 package ru.netology.neworkapp.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -23,6 +24,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import ru.netology.neworkapp.viewmodel.CreateEventViewModel
+import ru.netology.neworkapp.viewmodel.CreatePostViewModel
 import ru.netology.neworkapp.viewmodel.FeedViewModel
 import ru.netology.neworkapp.viewmodel.SharedViewModel
 
@@ -126,7 +129,8 @@ fun NavGraph(
         ) {
             composable("posts") {
                 val feedViewModel: FeedViewModel = hiltViewModel()
-                feedViewModel.setTokenAndUserId(sharedViewModel.token.value, sharedViewModel.currentUserId.value)
+
+                feedViewModel.setTokenAndUserId(sharedViewModel.token.toString(), sharedViewModel.currentUserId.value)
 
                 sharedViewModel.setShowTopBar(true)
                 sharedViewModel.setShowBottomBar(true)
@@ -153,6 +157,8 @@ fun NavGraph(
                 UserScreen(onUserClick = { userId -> navController.navigate("userDetail/$userId") })
             }
             composable("createPost") {
+                val createPostViewModel: CreatePostViewModel = hiltViewModel()
+                createPostViewModel.setTokenAndUserId(sharedViewModel.token.value, sharedViewModel.currentUserId.value)
                 sharedViewModel.setShowTopBar(false)
                 sharedViewModel.setShowBottomBar(false)
                 CreatePostScreen(
@@ -162,6 +168,8 @@ fun NavGraph(
                 )
             }
             composable("createEvent") {
+                val createEventViewModel: CreateEventViewModel = hiltViewModel()
+                createEventViewModel.setTokenAndUserId(sharedViewModel.token.value, sharedViewModel.currentUserId.value)
                 sharedViewModel.setShowTopBar(false)
                 sharedViewModel.setShowBottomBar(false)
                 CreateEventScreen(

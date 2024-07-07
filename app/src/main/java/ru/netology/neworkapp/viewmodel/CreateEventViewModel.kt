@@ -20,6 +20,14 @@ class CreateEventViewModel @Inject constructor(
     private val eventRepository: EventRepository
 ) : ViewModel() {
 
+    private var token: String? = null
+    private var currentUserId: Int = 0
+
+    fun setTokenAndUserId(token: String?, userId: Int) {
+        this.token = token
+        this.currentUserId = userId
+    }
+
     private val _createEventState = MutableStateFlow<CreateEventState>(CreateEventState.Idle)
     val createEventState: StateFlow<CreateEventState> = _createEventState
 
@@ -36,6 +44,7 @@ class CreateEventViewModel @Inject constructor(
                 datetime = getFormattedISODateTime(datetime),
                 type = type
             )
+            Log.d("CreateEventViewModel", "Event:$event")
             val response = eventRepository.createEvent(token, event)
             if (response.isSuccessful) {
                 _createEventState.value = CreateEventState.Success

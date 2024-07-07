@@ -26,7 +26,8 @@ class PostRepository @Inject constructor(
     }
 
     suspend fun getPosts(): List<Post> {
-        return apiService.getPosts()
+        Log.d("PostRepository", "Fetching posts")
+        return apiService.getPosts(apiKey = BuildConfig.API_KEY)
     }
 
     suspend fun getPostById(postId: Int): Post {

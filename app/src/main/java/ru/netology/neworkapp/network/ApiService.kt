@@ -62,7 +62,9 @@ interface ApiService {
     ): Post
 
     @GET("api/posts")
-    suspend fun getPosts(): List<Post>
+    suspend fun getPosts(
+        @Header("Api-Key") apiKey: String
+    ): List<Post>
 
     @GET("api/posts/{id}")
     suspend fun getPostById(@Path("id") postId: Int): Post

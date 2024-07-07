@@ -60,9 +60,12 @@ fun CreatePostScreen(
                 },
                 actions = {
                     IconButton(onClick = {
+                        Log.e("CreatePostScreen", "editingPost:$editingPost, content.text:$content.text")
                         if (editingPost != null) {
+                            Log.e("CreatePostScreen", "editingPost")
                             createPostViewModel.updatePost(editingPost!!.id, content.text)
                         } else {
+                            Log.e("CreatePostScreen", "createPost")
                             createPostViewModel.createPost(content.text)
                         }
                         sharedViewModel.setEditingPost(null)

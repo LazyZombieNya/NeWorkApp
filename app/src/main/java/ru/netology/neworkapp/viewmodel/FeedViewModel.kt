@@ -35,9 +35,11 @@ class FeedViewModel @Inject constructor(
     fun loadPosts() {
         viewModelScope.launch {
             try {
-                _posts.value = postRepository.getPosts()
+                val response = postRepository.getPosts()
+                _posts.value = response
+                Log.d("FeedViewModel", "Posts loaded successfully: ${response.size}")
             } catch (e: Exception) {
-                // Handle error
+                Log.e("FeedViewModel", "Error loading posts", e)
             }
         }
     }
